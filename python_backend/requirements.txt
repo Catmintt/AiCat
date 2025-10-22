@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+aiomysql
+pydantic-settings
+passlib
+bcrypt==3.2.2
+python-jose[cryptography]
+pydantic[email]
+python-multipart
+redis[hiredis]
+aiosmtplib
