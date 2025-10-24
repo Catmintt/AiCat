@@ -10,7 +10,7 @@
 
       <!-- 底部介绍区域 -->
       <section class="intro-section">
-        <h1 class="main-slogan">灵活、易用的AI工具平台</h1>
+        <h1 class="main-slogan">灵活、易用的Ai工具平台</h1>
         <p class="sub-slogan">发现不一样的灵感</p>
       </section>
     </div>
@@ -406,7 +406,7 @@ const handleLogin = async () => {
   flex-direction: column;
   position: relative;
   /* 背景图片设置 */
-  background-image: url('@/assets/Cat.jpg');
+  background-image: url('@/assets/Cat.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -416,8 +416,7 @@ const handleLogin = async () => {
 /* 顶部品牌区域 */
 .brand-header {
   position: absolute;
-  top: 32px;
-  left: 32px;
+  padding: 10px;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -440,7 +439,8 @@ const handleLogin = async () => {
 }
 
 .main-slogan {
-  font-size: 26px;
+  font-family: 'Times New Roman', 'Microsoft YaHei'; 
+  font-size: 32px;
   font-weight: 600;
   color: #FFFFFF;
   line-height: 1.4;
@@ -448,7 +448,7 @@ const handleLogin = async () => {
 }
 
 .sub-slogan {
-  font-size: 17px;
+  font-size: 22px;
   font-weight: 400;
   color: #FFFFFF;
   line-height: 1.5;
