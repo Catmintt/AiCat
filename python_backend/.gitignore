@@ -1,0 +1,17 @@
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Virtual Environment
+venv/
+*.env
+.env
+
+# IDE / Editor specific files
+.vscode/
+.idea/
+
+# Other generated files
+/dist/
+/build/
+*.egg-info/
