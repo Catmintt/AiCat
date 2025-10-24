@@ -1,6 +1,6 @@
 <!-- src/components/CatLogo.vue -->
 <template>
-  <svg width="28" height="28" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <svg width="50" height="50" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <!-- Cat face shape -->
     <path d="M 50,95 C 20,95 5,70 5,40 C 5,10 20,5 50,5 C 80,5 95,10 95,40 C 95,70 80,95 50,95 Z" fill="#7B61FF"/>
     
