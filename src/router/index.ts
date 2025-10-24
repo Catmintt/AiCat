@@ -1,7 +1,7 @@
 // src/router/index.ts
 import { createRouter, createWebHistory } from 'vue-router';
-import Login from '../components/Login.vue'; // 你的登录组件
-import Dashboard from '../components/Dashboard.vue'; // 我们刚创建的 Dashboard 组件
+import Login from '../components/Login.vue'; // 登录组件
+import AiToolsHome from '../components/AiToolsHome.vue'; // AI工具主界面
 
 const routes = [
   {
@@ -11,9 +11,30 @@ const routes = [
   },
   {
     path: '/', // 网站的根路径
-    name: 'Dashboard',
-    component: Dashboard,
-    meta: { requiresAuth: true } // 添加一个元字段，表示这个路由需要登录才能访问
+    name: 'AiToolsHome',
+    component: AiToolsHome,
+    meta: { requiresAuth: true } // 添加一个元字段,表示这个路由需要登录才能访问
+  },
+  {
+    path: '/tools/:toolId',
+    name: 'ToolCreator',
+    component: () => import('../components/ToolCreator.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: () => import('../components/About.vue'),
+  },
+  {
+    path: '/help',
+    name: 'Help',
+    component: () => import('../components/Help.vue'),
+  },
+  {
+    path: '/pricing',
+    name: 'Pricing',
+    component: () => import('../components/Pricing.vue'),
   },
 ];
 
@@ -32,10 +53,10 @@ router.beforeEach((to, from, next) => {
     // 重定向到登录页
     next({ name: 'Login' });
   }
-  // 2. 如果用户已登录，但试图访问登录页
+  // 2. 如果用户已登录,但试图访问登录页
   else if (to.name === 'Login' && isAuthenticated) {
-    // 阻止他们，并让他们停留在当前页面或重定向到首页
-    next(from); // 或者 next({ name: 'Dashboard' });
+    // 阻止他们,并让他们停留在当前页面或重定向到首页
+    next({ name: 'AiToolsHome' });
   }
   // 3. 其他情况，正常放行
   else {
