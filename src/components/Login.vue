@@ -2,15 +2,17 @@
   <div class="login-page-wrapper">
     <!-- 左侧产品介绍面板 -->
     <div class="left-panel">
-      <header class="logo-header">
+      <!-- 顶部品牌区域 -->
+      <header class="brand-header">
         <CatLogo />
-        <span class="platform-name">AiCat</span>
+        <img :src="platformNameImage" alt="AiCat 平台" class="platform-name-img" />
       </header>
 
-      <main class="hero-content">
-        <h1>灵活、易用的 Ai工具平台</h1>
-        <img :src="heroImage" alt="AiCat Hero Image" class="hero-image" />
-      </main>
+      <!-- 底部介绍区域 -->
+      <section class="intro-section">
+        <h1 class="main-slogan">灵活、易用的AI工具平台</h1>
+        <p class="sub-slogan">发现不一样的灵感</p>
+      </section>
     </div>
 
     <!-- 右侧登录表单面板 -->
@@ -145,7 +147,7 @@ import request from '@/api/request';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus'; 
 import CatLogo from './CatLogo.vue';
-import heroImage from '@/assets/Cat.jpg';
+import platformNameImage from '@/assets/AiCat.svg';
 import ResetPassword from './ResetPassword.vue';
 import EyeOpenIcon from './icons/EyeOpenIcon.vue';
 import EyeClosedIcon from './icons/EyeClosedIcon.vue';
@@ -397,54 +399,61 @@ const handleLogin = async () => {
   font-family: 'PingFang SC', 'Helvetica Neue', 'Microsoft YaHei', sans-serif;
 }
 
-/* --- 左侧介绍面板 (全新样式) --- */
+/* --- 左侧介绍面板 (新设计样式) --- */
 .left-panel {
   flex: 1;
   display: flex;
-  flex-direction: column; /* 垂直布局 */
-  align-items: center; /* 水平居中 */
-  justify-content: flex-start; /* 从顶部开始排列 */
-  background: linear-gradient(160deg, #e9e6ff 0%, #dbeafe 100%); /* 淡雅的渐变背景 */
-}
-
-.logo-header {
-  display: flex;
-  align-items: center;
-  width: 100%; /* 确保Logo在容器内左对齐 */
-  margin-bottom: auto; /* 关键：将主要内容推向中心 */
-}
-
-.platform-name {
-  font-size: 1.75rem;
-  font-weight: 600;
-  margin-left: 12px;
-  color: #4338ca; /* 深紫色文字以保证可读性 */
-}
-
-.hero-content {
-  display: flex;
   flex-direction: column;
+  position: relative;
+  /* 背景图片设置 */
+  background-image: url('@/assets/Cat.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+/* 顶部品牌区域 */
+.brand-header {
+  position: absolute;
+  top: 32px;
+  left: 32px;
+  display: flex;
   align-items: center;
-  text-align: center;
+  gap: 16px;
+  z-index: 10;
+}
+
+.platform-name-img {
+  height: 32px;
+  width: auto;
+}
+
+/* 底部介绍区域 */
+.intro-section {
+  position: absolute;
+  bottom: 0;
   width: 100%;
-  margin-bottom: auto; /* 关键：将主要内容推向中心 */
+  background-color: rgba(0, 206, 209, 0.6); /* 半透明青色 */
+  padding: 40px 32px;
+  text-align: center;
 }
 
-.hero-content h1 {
-  font-size: 3rem;
-  font-weight: bold;
-  color: #17171D; /* 更深的紫色 */
+.main-slogan {
+  font-size: 26px;
+  font-weight: 600;
+  color: #FFFFFF;
   line-height: 1.4;
-  margin-bottom: 40px; /* 标题和图片之间的间距 */
+  margin: 0 0 12px 0;
 }
 
-.hero-image {
-  max-width: 90%; /* 图片最大宽度为父容器的90% */
-  height: auto; /* 高度自动，保持图片比例 */
-  max-height: 50vh; /* 限制最大高度，防止图片过高 */
-  object-fit: contain; /* 确保图片完整显示 */
-  border-radius: 16px;
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+.sub-slogan {
+  font-size: 17px;
+  font-weight: 400;
+  color: #FFFFFF;
+  line-height: 1.5;
+  margin: 0;
+  opacity: 0.95;
 }
 
 
@@ -665,5 +674,30 @@ const handleLogin = async () => {
 @media (max-width: 900px) {
   .left-panel { display: none; }
   .right-panel { flex-basis: 100%; }
+}
+
+/* 中型屏幕优化 */
+@media (min-width: 901px) and (max-width: 1200px) {
+  .brand-header {
+    top: 20px;
+    left: 20px;
+    gap: 12px;
+  }
+  
+  .platform-name-img {
+    height: 28px;
+  }
+  
+  .intro-section {
+    padding: 30px 24px;
+  }
+  
+  .main-slogan {
+    font-size: 22px;
+  }
+  
+  .sub-slogan {
+    font-size: 15px;
+  }
 }
 </style>
