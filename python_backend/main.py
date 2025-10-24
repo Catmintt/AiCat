@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api import user
+from api import users
 from core.database import get_db_pool, close_db_pool
 from core.redis_client import get_redis_pool, close_redis_pool
-from api.user import check_and_create_admin
+from api.users import check_and_create_admin
 
 from core.config import settings
 
@@ -47,7 +47,7 @@ async def shutdown_event():
 # --- 包含路由 ---
 # 将 user.py 中定义的路由包含进来
 # 所有在 user.router 上的路由都会自动加上 /api/users 前缀
-app.include_router(user.router, prefix="/api/users", tags=["Users"])
+app.include_router(users.router, prefix="/api/users", tags=["Users"])
 
 
 # --- 根路由 ---

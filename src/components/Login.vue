@@ -4,8 +4,7 @@
     <div class="left-panel">
       <!-- 顶部品牌区域 -->
       <header class="brand-header">
-        <CatLogo />
-        <img :src="platformNameImage" alt="AiCat 平台" class="platform-name-img" />
+        <PlatformBrand />
       </header>
 
       <!-- 底部介绍区域 -->
@@ -146,8 +145,7 @@ import { ref, computed, watch } from 'vue';
 import request from '@/api/request'; 
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus'; 
-import CatLogo from './CatLogo.vue';
-import platformNameImage from '@/assets/AiCat.svg';
+import PlatformBrand from './PlatformBrand.vue';
 import ResetPassword from './ResetPassword.vue';
 import EyeOpenIcon from './icons/EyeOpenIcon.vue';
 import EyeClosedIcon from './icons/EyeClosedIcon.vue';
@@ -421,11 +419,6 @@ const handleLogin = async () => {
   align-items: center;
   gap: 16px;
   z-index: 10;
-}
-
-.platform-name-img {
-  height: 32px;
-  width: auto;
 }
 
 /* 底部介绍区域 */

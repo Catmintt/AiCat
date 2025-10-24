@@ -7,8 +7,7 @@
     >
       <!-- Logo区域 -->
       <div class="logo-section">
-        <CatLogo class="logo-icon" />
-        <span v-show="!isNavCollapsed" class="logo-text">AiCat</span>
+        <PlatformBrand />
       </div>
 
       <!-- 分类索引区域 -->
@@ -72,8 +71,8 @@
             v-model="searchKeyword"
             type="text"
             class="search-input"
-            placeholder="搜索AI工具..."
-            @keyup.enter="handleSearch"
+            placeholder="在所有工具中搜索..."
+            @input="handleSearch"
           />
           <button
             v-if="searchKeyword"
@@ -91,165 +90,94 @@
       </div>
 
       <!-- 工具展示区域 -->
-      <div class="tools-display" ref="toolsDisplay">
-        <!-- 加载状态 -->
-        <div v-if="isLoading" class="loading-state">
-          <div class="loading-spinner"></div>
-          <p>加载中...</p>
+      <div class="tools-display" ref="toolsDisplayRef">
+        <!-- 动态渲染所有分类组件 -->
+        <component 
+          v-for="section in toolSections" 
+          :is="section.component" 
+          :key="section.id"
+          :search-keyword="searchKeyword"
+        />
+
+        <!-- 如果搜索结果为空，显示提示 -->
+        <div v-if="isSearchResultEmpty" class="empty-state">
+          <svg class="empty-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <p class="empty-text">未找到与 "{{ searchKeyword }}" 相关的工具</p>
         </div>
-
-        <!-- 工具列表 -->
-        <div v-else-if="toolsList.length > 0" class="tools-grid">
-          <div
-            v-for="tool in toolsList"
-            :key="tool.id"
-            class="tool-card"
-            @click="handleToolClick(tool)"
-          >
-            <!-- 缩略图区域 -->
-            <div class="tool-thumbnail">
-              <img :src="tool.thumbnail" :alt="tool.name" />
-              <span v-if="tool.popularity" class="popularity-badge">🔥 {{ formatPopularity(tool.popularity) }}</span>
-            </div>
-
-            <!-- 信息区域 -->
-            <div class="tool-info">
-              <h3 class="tool-name">{{ tool.name }}</h3>
-              <p class="tool-description">{{ tool.description }}</p>
-              <span v-if="tool.modelName" class="model-tag">{{ tool.modelName }}</span>
-            </div>
-
-            <!-- 底部操作区 -->
-            <div class="tool-footer">
-              <div class="tool-tags">
-                <span
-                  v-for="(tag, index) in tool.tags.slice(0, 3)"
-                  :key="index"
-                  class="tag"
-                >
-                  {{ tag }}
-                </span>
-                <span v-if="tool.tags.length > 3" class="tag">+{{ tool.tags.length - 3 }}</span>
-              </div>
-              <button class="use-btn" @click.stop="handleToolClick(tool)">开始使用</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 空状态 -->
-        <div v-else class="empty-state">
-          <svg class="empty-icon" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="12" y1="8" x2="12" y2="12"></line>
-            <line x1="12" y1="16" x2="12.01" y2="16"></line>
-          </svg>
-          <p class="empty-text">{{ emptyMessage }}</p>
-        </div>
-
-        <!-- 加载更多触发器 -->
-        <div v-if="hasMore && !isLoading" ref="loadMoreTrigger" class="load-more-trigger"></div>
       </div>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, shallowRef, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
-import CatLogo from './CatLogo.vue';
-
-// 定义类型
-interface Category {
-  id: string;
-  name: string;
-  icon: string;
-  order: number;
-  toolCount?: number;
-}
-
-interface Tool {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  thumbnail: string;
-  tags: string[];
-  modelName?: string;
-  routePath: string;
-  popularity?: number;
-}
+import PlatformBrand from './PlatformBrand.vue';
+import ImageToolsSection from './tool-sections/ImageToolsSection.vue';
+import AudioToolsSection from './tool-sections/AudioToolsSection.vue';
+import VideoToolsSection from './tool-sections/VideoToolsSection.vue';
+import TextToolsSection from './tool-sections/TextToolsSection.vue';
+import CodeToolsSection from './tool-sections/CodeToolsSection.vue';
 
 // 路由
 const router = useRouter();
 
 // 状态管理
 const isNavCollapsed = ref(false);
-const currentCategory = ref('image-tools');
-const toolsList = ref<Tool[]>([]);
 const searchKeyword = ref('');
-const isLoading = ref(false);
 const userInfo = ref<any>(null);
-const hasMore = ref(true);
-const currentPage = ref(1);
-const toolsDisplay = ref<HTMLElement | null>(null);
-const loadMoreTrigger = ref<HTMLElement | null>(null);
+const toolsDisplayRef = ref<HTMLElement | null>(null);
+const currentCategory = ref('image-tools'); 
+const isSearchResultEmpty = ref(false);
 
 // 分类数据
-const categories = ref<Category[]>([
-  { id: 'image-tools', name: 'AI图像工具', icon: '🎨', order: 1 },
-  { id: 'audio-tools', name: 'AI音频工具', icon: '🎵', order: 2 },
-  { id: 'video-tools', name: 'AI视频工具', icon: '🎬', order: 3 },
-  { id: 'text-tools', name: 'AI文本工具', icon: '📝', order: 4 },
-  { id: 'code-tools', name: 'AI代码工具', icon: '💻', order: 5 },
+const categories = ref([
+  { id: 'image-tools', name: 'AI图像工具', icon: '🎨' },
+  { id: 'audio-tools', name: 'AI音频工具', icon: '🎵' },
+  { id: 'video-tools', name: 'AI视频工具', icon: '🎬' },
+  { id: 'text-tools', name: 'AI文本工具', icon: '📝' },
+  { id: 'code-tools', name: 'AI代码工具', icon: '💻' },
 ]);
 
-// 计算属性
-const emptyMessage = computed(() => {
-  if (searchKeyword.value) {
-    return '未找到相关工具,试试其他关键词';
-  }
-  return '该分类暂无工具';
-});
+const toolSections = shallowRef([
+  { id: 'image-tools', component: ImageToolsSection },
+  { id: 'audio-tools', component: AudioToolsSection },
+  { id: 'video-tools', component: VideoToolsSection },
+  { id: 'text-tools', component: TextToolsSection },
+  { id: 'code-tools', component: CodeToolsSection },
+]);
 
-// 方法
+
 const toggleSidebar = () => {
   isNavCollapsed.value = !isNavCollapsed.value;
-  // 保存用户偏好
   localStorage.setItem('sidebarCollapsed', String(isNavCollapsed.value));
 };
 
 const handleCategoryChange = (categoryId: string) => {
-  currentCategory.value = categoryId;
-  currentPage.value = 1;
-  searchKeyword.value = '';
-  loadTools(categoryId);
+  const targetElement = document.getElementById(categoryId);
+  if (targetElement) {
+    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 };
 
-const handleSearch = () => {
-  if (!searchKeyword.value.trim()) {
-    return;
+const handleSearch = async () => {
+  // 等待DOM更新，因为子组件的 v-show 会根据 searchKeyword 变化
+  await nextTick();
+  if (toolsDisplayRef.value) {
+    // 找出所有显示的 section
+    const visibleSections = Array.from(
+      toolsDisplayRef.value.querySelectorAll<HTMLElement>('.tool-category-section')
+    ).filter(section => section.style.display !== 'none');
+    
+    // 如果有搜索词但没有一个 section 是可见的，则显示“空状态”
+    isSearchResultEmpty.value = searchKeyword.value.trim() !== '' && visibleSections.length === 0;
   }
-  currentCategory.value = '';
-  currentPage.value = 1;
-  loadTools('', searchKeyword.value);
 };
 
 const clearSearch = () => {
   searchKeyword.value = '';
-  currentCategory.value = 'image-tools';
-  currentPage.value = 1;
-  loadTools(currentCategory.value);
-};
-
-const handleToolClick = (tool: Tool) => {
-  const query: any = {};
-  if (currentCategory.value) {
-    query.category = currentCategory.value;
-  }
-  if (searchKeyword.value) {
-    query.keyword = searchKeyword.value;
-  }
-  router.push({ path: tool.routePath, query });
+  isSearchResultEmpty.value = false;
+  toolsDisplayRef.value?.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 const handleLogout = () => {
@@ -258,96 +186,39 @@ const handleLogout = () => {
   router.push('/login');
 };
 
-const formatPopularity = (num: number): string => {
-  if (num >= 10000) {
-    return (num / 10000).toFixed(1) + 'w';
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'k';
-  }
-  return String(num);
-};
-
-const loadTools = async (category: string = '', keyword: string = '') => {
-  isLoading.value = true;
-  try {
-    // 模拟数据加载
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // 模拟工具数据
-    const mockTools: Tool[] = [
-      {
-        id: 'flux-creator',
-        name: 'Flux图像创作工具',
-        description: '基于Flux模型的AI图像生成工具,支持多种艺术风格',
-        category: 'image-tools',
-        thumbnail: 'https://via.placeholder.com/400x240/8B5CF6/FFFFFF?text=Flux+Creator',
-        tags: ['图像生成', '艺术创作', 'AI绘画'],
-        modelName: 'Flux-1',
-        routePath: '/tools/flux-creator',
-        popularity: 8520,
-      },
-      {
-        id: 'audio-gen',
-        name: 'AI音频生成器',
-        description: '智能语音合成与音频处理工具',
-        category: 'audio-tools',
-        thumbnail: 'https://via.placeholder.com/400x240/10B981/FFFFFF?text=Audio+Gen',
-        tags: ['语音合成', '音频处理'],
-        modelName: 'AudioGen-Pro',
-        routePath: '/tools/audio-gen',
-        popularity: 5200,
-      },
-      {
-        id: 'video-editor',
-        name: 'AI视频编辑助手',
-        description: '智能视频剪辑与特效制作工具',
-        category: 'video-tools',
-        thumbnail: 'https://via.placeholder.com/400x240/F59E0B/FFFFFF?text=Video+Editor',
-        tags: ['视频剪辑', '特效制作', 'AI编辑'],
-        modelName: 'VideoAI-v2',
-        routePath: '/tools/video-editor',
-        popularity: 6800,
-      },
-    ];
-
-    // 根据分类或关键词过滤
-    let filtered = mockTools;
-    if (category) {
-      filtered = mockTools.filter(tool => tool.category === category);
-    }
-    if (keyword) {
-      filtered = mockTools.filter(tool => 
-        tool.name.includes(keyword) || tool.description.includes(keyword)
-      );
-    }
-
-    toolsList.value = filtered;
-    hasMore.value = false;
-  } catch (error) {
-    console.error('加载工具失败:', error);
-    toolsList.value = [];
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-// 初始化
+let observer: IntersectionObserver | null = null;
 onMounted(() => {
-  // 加载用户信息
   const token = localStorage.getItem('access_token');
-  if (token) {
-    userInfo.value = { username: '用户', email: 'user@aicat.com' };
-  }
+  if (token) { userInfo.value = { username: '用户', email: 'user@aicat.com' }; }
+  isNavCollapsed.value = localStorage.getItem('sidebarCollapsed') === 'true';
 
-  // 加载导航栏折叠状态
-  const savedCollapsed = localStorage.getItem('sidebarCollapsed');
-  if (savedCollapsed) {
-    isNavCollapsed.value = savedCollapsed === 'true';
-  }
+  const options = {
+    root: toolsDisplayRef.value,
+    rootMargin: '0px 0px -60% 0px', // 当 section 滚动到视口顶部 40% 区域时触发
+    threshold: 0,
+  };
+  
+  observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        currentCategory.value = entry.target.id;
+      }
+    });
+  }, options);
 
-  // 加载默认分类工具
-  loadTools(currentCategory.value);
+  // 确保在 DOM 渲染完成后再开始观察
+  nextTick(() => {
+    const sections = document.querySelectorAll('.tool-category-section');
+    sections.forEach(section => {
+      if(observer) {
+        observer.observe(section)
+      }
+    });
+  });
+});
+
+onUnmounted(() => {
+  if (observer) observer.disconnect();
 });
 </script>
 
@@ -381,20 +252,6 @@ onMounted(() => {
   padding: 20px 16px;
   border-bottom: 1px solid #e5e7eb;
   background-color: #fafafa;
-}
-
-.logo-icon {
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;
-}
-
-.logo-text {
-  margin-left: 12px;
-  font-size: 18px;
-  font-weight: 600;
-  color: #1f2937;
-  white-space: nowrap;
 }
 
 /* 分类导航 */
@@ -653,7 +510,8 @@ onMounted(() => {
 .tools-display {
   flex: 1;
   overflow-y: auto;
-  padding: 24px;
+  padding: 32px;
+  scroll-behavior: smooth;
 }
 
 /* 加载状态 */
@@ -871,5 +729,22 @@ onMounted(() => {
   .tools-display {
     padding: 16px;
   }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+}
+.empty-icon {
+  color: #d1d5db;
+  margin-bottom: 16px;
+}
+.empty-text {
+  font-size: 16px;
+  color: #9ca3af;
 }
 </style>

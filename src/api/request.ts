@@ -50,7 +50,7 @@ service.interceptors.response.use(
                 case 404:
                     console.error('请求的资源未找到');
                     break;
-                // 你可以根据后端返回的错误结构，在这里统一处理错误提示
+                // 根据后端返回的错误结构，在这里统一处理错误提示
                 // 例如: const message = error.response.data.detail || '请求失败';
                 // ElMessage.error(message);
                 default:

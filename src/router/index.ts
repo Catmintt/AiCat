@@ -5,15 +5,15 @@ import AiToolsHome from '../components/AiToolsHome.vue'; // AI工具主界面
 
 const routes = [
   {
-    path: '/login',
-    name: 'Login',
-    component: Login,
-  },
-  {
     path: '/', // 网站的根路径
     name: 'AiToolsHome',
     component: AiToolsHome,
-    meta: { requiresAuth: true } // 添加一个元字段,表示这个路由需要登录才能访问
+    // meta: { requiresAuth: true }
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login,
   },
   {
     path: '/tools/:toolId',
