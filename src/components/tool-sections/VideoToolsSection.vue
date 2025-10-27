@@ -36,8 +36,7 @@ const filteredTools = computed(() => {
   );
 });
 
-const handleToolClick = (tool: Tool) => router.push(tool.routePath);
-</script>
+const handleToolClick = (tool: Tool) => router.push(`/tools/${tool.id}`);</script>
 
 <style scoped>
 /* Common styles can be moved to a global CSS file */

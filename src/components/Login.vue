@@ -149,6 +149,7 @@ import PlatformBrand from './PlatformBrand.vue';
 import ResetPassword from './ResetPassword.vue';
 import EyeOpenIcon from './icons/EyeOpenIcon.vue';
 import EyeClosedIcon from './icons/EyeClosedIcon.vue';
+import type { AxiosResponse } from 'axios';
 
 // --- 类型定义 ---
 type Tab = 'sms' | 'password';
@@ -317,8 +318,8 @@ const handlePasswordLogin = async () => {
   formData.append('username', username.value);
   formData.append('password', password.value);
   
-  const responseData = await request.post('/users/login', formData) as LoginResponse;
-  handleSuccessfulLogin(responseData);
+  const response: AxiosResponse<LoginResponse> = await request.post('/users/login', formData);
+  handleSuccessfulLogin(response.data);
 };
 
 
@@ -346,12 +347,11 @@ const handleCodeLogin = async () => {
     return; // 如果有错误，则中断登录流程
   }
   
-  // FIX: 同样使用泛型
-  const responseData = await request.post('/users/login-code', {
+  const response: AxiosResponse<LoginResponse> = await request.post('/users/login-code', {
     email: emailForSms.value,
     code: smsCode.value,
-  }) as LoginResponse;
-  handleSuccessfulLogin(responseData);
+  });
+  handleSuccessfulLogin(response.data);
 };
 
 // 主登录函数

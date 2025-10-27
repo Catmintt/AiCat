@@ -29,6 +29,15 @@ class Settings(BaseSettings):
     EMAIL_HOST: str
     EMAIL_PORT: int
 
+    # ComfyUI 配置
+    COMFYUI_HTTP_URL: str
+    COMFYUI_WS_URL: str
+
+    # 语音识别
+    STT_API_KEY: str
+    MINIMAX_GROUP_ID: str
+    MINIMAX_API_KEY: str
+
     class Config:
         env_file = ".env"
 

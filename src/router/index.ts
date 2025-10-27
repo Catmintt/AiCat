@@ -2,6 +2,41 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../components/Login.vue'; // 登录组件
 import AiToolsHome from '../components/AiToolsHome.vue'; // AI工具主界面
+import ToolCreator from '../components/ToolCreator.vue';
+
+import { imageTools } from '../data/imageTools';
+import { audioTools } from '../data/audioTools';
+import { videoTools } from '../data/videoTools';
+import { textTools } from '../data/textTools';
+import { codeTools } from '../data/codeTools';
+const allTools = [
+  ...imageTools,
+  ...audioTools,
+  ...videoTools,
+  ...textTools,
+  ...codeTools,
+];
+
+// 动态生成所有工具的子路由
+const toolRoutes = allTools.map(tool => {
+  // 我们直接使用 tool.id 来决定路由名称和组件文件名
+  const componentFileName = tool.id; // 例如: 'symphony-ai'
+  const routeName = tool.id;         // 路由的唯一名称，也使用 id
+
+  return {
+    // URL 路径就是 tool.id
+    path: tool.id,
+    // 路由的 name 也使用 tool.id，确保唯一性
+    name: routeName,
+    // 动态导入组件时，直接使用 id 拼接文件名
+    // 例如，寻找 '../components/tools/symphony-ai.vue'
+    component: () => import(`../data/tools/${componentFileName}.vue`),
+    meta: {
+      toolName: tool.name, // meta.toolName 仍然使用工具的显示名称，用于在页面顶部显示
+      requiresAuth: true,
+    }
+  };
+});
 
 const routes = [
   {
@@ -16,9 +51,9 @@ const routes = [
     component: Login,
   },
   {
-    path: '/tools/:toolId',
-    name: 'ToolCreator',
-    component: () => import('../components/ToolCreator.vue'),
+    path: '/tools',       // 父路由
+    component: ToolCreator, // 使用 ToolCreator作为布局
+    children: toolRoutes, // 将上面动态生成的路由作为子路由！
     meta: { requiresAuth: true }
   },
   {

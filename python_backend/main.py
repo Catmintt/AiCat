@@ -1,12 +1,18 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 
-from api import users
+from api import users, flux, comfyui_sys, synthesizer
 from core.database import get_db_pool, close_db_pool
 from core.redis_client import get_redis_pool, close_redis_pool
 from api.users import check_and_create_admin
 
 from core.config import settings
+
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_RESULTS_DIR = BASE_DIR / "static_results"
+TEMP_DIR = BASE_DIR / "temp_files"
 
 app = FastAPI(title="AiCat Backend API")
 
@@ -19,6 +25,11 @@ app.add_middleware(
     allow_methods=["*"],  # 允许所有 HTTP 方法
     allow_headers=["*"],  # 允许所有请求头
 )
+
+# +++ 挂载静态文件目录 +++
+STATIC_RESULTS_DIR.mkdir(exist_ok=True)
+TEMP_DIR.mkdir(exist_ok=True) # 确保临时目录也存在
+app.mount("/api/results", StaticFiles(directory=STATIC_RESULTS_DIR), name="results")
 
 # --- 事件处理器 ---
 @app.on_event("startup")
@@ -49,6 +60,22 @@ async def shutdown_event():
 # 所有在 user.router 上的路由都会自动加上 /api/users 前缀
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
 
+app.include_router(
+    flux.router, 
+    prefix="/api/flux", 
+    tags=["Flux Editor"]
+)
+app.include_router(
+    comfyui_sys.router, 
+    prefix="/api/comfyui_sys",
+    tags=["ComfyUI System"]
+)
+
+app.include_router(
+    synthesizer.router,
+    prefix="/api/synthesizer",
+    tags=["Synthesizer"]
+)
 
 # --- 根路由 ---
 @app.get("/")
@@ -62,3 +89,5 @@ def read_root():
 # 3. 然后运行服务器:
 #    uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 # 4. 在浏览器中访问 http://localhost:8000/docs 查看自动生成的API文档。
+# 在Comfyui目录启动并监听
+# python main.py --listen --enable-cors-header

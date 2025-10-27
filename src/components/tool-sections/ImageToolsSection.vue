@@ -22,7 +22,7 @@
         <!-- 可以保留或修改底部样式 -->
         <div class="tool-footer">
           <div class="tool-tags">
-            <span v-for="(tag, index) in tool.tags.slice(0, 2)" :key="index" class="tag">
+            <span v-for="(tag, index) in tool.tags.slice(0, 5)" :key="index" class="tag">
               {{ tag }}
             </span>
           </div>
@@ -56,9 +56,7 @@ const filteredTools = computed(() => {
   );
 });
 
-const handleToolClick = (tool: Tool) => {
-  router.push(tool.routePath);
-};
+const handleToolClick = (tool: Tool) => router.push(`/tools/${tool.id}`);
 </script>
 
 <style scoped>

@@ -6,7 +6,7 @@ const service = axios.create({
     // baseURL 是 API 的基础路径,只需要写后面的路径
     // 重要：这里的地址要和后端运行的地址一致
     baseURL: 'http://127.0.0.1:8000/api/', 
-    timeout: 10000, // 请求超时时间（毫秒）
+    timeout: 180000, // 请求超时时间（毫秒）
 });
 
 // --- 请求拦截器 ---
@@ -33,9 +33,7 @@ service.interceptors.request.use(
 // 通过为 response 参数添加类型注解，可以获得更好的智能提示
 service.interceptors.response.use(
     (response: AxiosResponse) => {
-        // 后端成功响应 (状态码 2xx)
-        // 我们只关心 data 部分
-        return response.data;
+        return response;
     },
     error => {
         // 处理 HTTP 错误 (状态码非 2xx)

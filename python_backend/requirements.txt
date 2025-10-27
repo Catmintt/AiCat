@@ -9,3 +9,6 @@ pydantic[email]
 python-multipart
 redis[hiredis]
 aiosmtplib
+requests
+pydub
+gradio_client

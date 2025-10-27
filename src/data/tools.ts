@@ -4,7 +4,6 @@ export interface Tool {
   name: string;
   description: string;
   thumbnail: string; // 产品封面图片链接
-  routePath: string; // 点击后跳转的路径
   tags: string[];
   price?: string; // 例如: '¥0.05/次'
   modelName?: string;
